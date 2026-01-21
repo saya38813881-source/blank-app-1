@@ -5,14 +5,25 @@ import datetime
 # ページ設定
 st.set_page_config(page_title="ヒソカの運勢鑑定", page_icon="♣️")
 
+# ヒソカっぽい語尾
 def hisoka_suffix():
     return random.choice(["♣︎", "♦︎", "♥︎", "♠︎"])
 
 st.title("♣︎ ヒソカの運勢鑑定所 ♦︎")
 st.write(f"ボクを退屈させないでよ…？ {hisoka_suffix()}")
 
+# 日付範囲の定義
+min_date = datetime.date(1900, 1, 1)
+max_date = datetime.date(2100, 12, 31)
+
 with st.form("fortune_form"):
-    birthday = st.date_input("キミの誕生日を教えてよ…♠︎")
+    # 1900年から2100年までに制限
+    birthday = st.date_input(
+        "キミの誕生日を教えてよ…♠︎",
+        value=datetime.date(2000, 1, 1),
+        min_value=min_date,
+        max_value=max_date
+    )
     submitted = st.form_submit_button("占う")
 
 if submitted:
@@ -33,7 +44,6 @@ if submitted:
         "いい刺激が待っているよ、フフフ……♣︎", 
         "ボクと戦うかい？それともデートかな？♠︎"
     ]
-    # 用意しやすいアイテムに限定
     items = [
         "コンビニで買えるガム（伸縮自在なら最高だね）", 
         "トランプのカード（ジョーカーなら吉だよ）", 
@@ -59,6 +69,6 @@ if submitted:
 
     st.success(f"**ラッキーアイテム**： {res_item} {hisoka_suffix()}")
 
-    st.write(f"次は実戦で会おう。それまで死なないでよ…？ {hisoka_suffix()}")
+    st.write(f"ボクを満足させてくれる日を、楽しみに待っているよ…… {hisoka_suffix()}")
 
-st.sidebar.markdown("ボクを満足させてくれるかな…？♠︎")
+st.sidebar.markdown("1900年から2100年までの素材（人間）なら、ボクが占ってあげるよ♠︎")
