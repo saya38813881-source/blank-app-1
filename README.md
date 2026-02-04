@@ -14,7 +14,7 @@ treamlit と Supabase を用いて作成した、ヒソカ風の口調で占い�
 ヒソカの口調・世界観を意識した UI / メッセージ表示
 
 🚀 アプリのURL
-https://sturdy-guide-x5gqj45jqvj7fpxx6-8501.app.github.dev/
+https://blank-app-xe276otmsek.streamlit.app/
 
 👉 アプリはこちらから試せます
 
