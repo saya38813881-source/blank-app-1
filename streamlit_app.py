@@ -1,8 +1,51 @@
 import streamlit as st
 import random
 import datetime
+import sqlite3
 
-# ページ設定
+# --- データベース (SQLite3) の初期化処理 ---
+def init_db():
+    conn = sqlite3.connect("fortune_history.db")
+    c = conn.cursor()
+    # 鑑定履歴を保存するテーブルを作成（存在しない場合）
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            birthday TEXT,
+            nen_type TEXT,
+            overall_luck TEXT,
+            created_at TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+# 鑑定結果を保存する関数
+def save_fortune(birthday_str, nen_type, overall_luck):
+    conn = sqlite3.connect("fortune_history.db")
+    c = conn.cursor()
+    created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    c.execute("""
+        INSERT INTO history (birthday, nen_type, overall_luck, created_at)
+        VALUES (?, ?, ?, ?)
+    """, (birthday_str, nen_type, overall_luck, created_at))
+    conn.commit()
+    conn.close()
+
+# 過去の鑑定履歴を取得する関数
+def get_history():
+    conn = sqlite3.connect("fortune_history.db")
+    c = conn.cursor()
+    c.execute("SELECT birthday, nen_type, overall_luck, created_at FROM history ORDER BY id DESC LIMIT 5")
+    rows = c.fetchall()
+    conn.close()
+    return rows
+
+# DB初期化を実行
+init_db()
+
+
+# --- Streamlit ページ設定 ---
 st.set_page_config(page_title="ヒソカの運勢鑑定", page_icon="♣️")
 
 def hisoka_suffix():
@@ -47,6 +90,9 @@ if submitted:
     res_love = random.choice(love_luck)
     res_item = random.choice(items)
 
+    # --- SQLite3 データベースに結果を保存 ---
+    save_fortune(birthday.strftime("%Y-%m-%d"), my_nen, res_overall)
+
     st.divider()
 
     # ヒソカの鑑定結果
@@ -78,5 +124,19 @@ if submitted:
 
     st.write(f"早くボクのレベルまで上がっておいで。待っているよ…… {hisoka_suffix()}")
 
-st.sidebar.image("https://www.google.com/s2/favicons?domain=streamlit.io&sz=64") # アイコン代わり
+# --- サイドバーの設定 ---
+st.sidebar.image("https://www.google.com/s2/favicons?domain=streamlit.io&sz=64")
 st.sidebar.markdown("キミのオーラ、ボクが美味しく判定してあげる♠︎")
+
+# --- サイドバーに SQLite3 の履歴を表示 ---
+st.sidebar.divider()
+st.sidebar.subheader("♣︎ 過去の挑戦者たち（DB履歴）")
+history_data = get_history()
+
+if history_data:
+    for row in history_data:
+        b_day, n_type, o_luck, c_at = row
+        st.sidebar.write(f"・{b_day} 生まれ / **{n_type}** ({o_luck})")
+else:
+    st.sidebar.write("まだ誰も占っていないようだね…♠︎")
+    
